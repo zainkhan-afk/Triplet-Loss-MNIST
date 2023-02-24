@@ -1,7 +1,7 @@
 from model import SimpleCNN
 import torch
+import torch.nn as nn
 
 model = SimpleCNN()
-
-x = torch.randn((1, 28, 28))
-model(x)
+criterion = nn.TripletMarginLoss(margin=1.0, p=2)
+optimizer = optim.SG
