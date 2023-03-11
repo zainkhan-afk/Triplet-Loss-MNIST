@@ -8,29 +8,13 @@ import cv2
 import os 
 
 class ASLDataset(Dataset):
-    def __init__(self, data_dir, img_size = (28, 28)):
-        self.data_dir = data_dir
+    def __init__(self, all_paths, all_labels, img_size = (28, 28)):
         self.img_size = img_size
-        self.all_paths = []
-        self.all_labels = []
-        self.labels = []
-        self.label_map = {}
-
-        for i in range(10):
-            self.label_map[chr(65+i)] = i
-
-        print(self.label_map)
-
-        for key in self.label_map:
-            path = os.path.join(self.data_dir, key)
-            path = path + f"/*.jpg"
-            label_paths = glob.glob(path)
-
-            self.all_paths += label_paths
-            self.labels += [self.label_map[key]]*len(label_paths)
+        self.all_paths = all_paths
+        self.all_labels = all_labels
 
         self.all_paths = np.array(self.all_paths)
-        self.labels = np.array(self.labels)
+        self.all_labels = np.array(self.all_labels)
     
     def _load_image(self, path):
         img = cv2.imread(path)
@@ -48,9 +32,9 @@ class ASLDataset(Dataset):
     
     def __getitem__(self, idx):
         anchor_path = self.all_paths[idx]
-        label = self.labels[idx]
-        positive_paths = self.all_paths[(self.labels == label) & (self.all_paths != anchor_path)]
-        negative_paths = self.all_paths[self.labels != label]
+        label = self.all_labels[idx]
+        positive_paths = self.all_paths[(self.all_labels == label) & (self.all_paths != anchor_path)]
+        negative_paths = self.all_paths[self.all_labels != label]
 
 
         positive_path = random.choice(positive_paths)

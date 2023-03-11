@@ -11,17 +11,14 @@ from torch.utils.data import DataLoader
 
 from utils import *
 
-paths, labels, label_map = load_paths("Dataset/ASL_DATASET/asl_alphabet_train/asl_alphabet_train")
-train_paths, train_labels, val_paths, val_labels = split_dataset(paths, labels, val_ratio = 0.2)
-print(len(paths), len(train_paths), len(val_paths))
-exit()
-
+train_paths, train_labels, val_paths, val_labels, label_map = load_paths("Dataset/ASL_DATASET/asl_alphabet_train/asl_alphabet_train", val_ratio = 0.2)
+print(len(train_labels), len(val_labels))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 embedding_dims = 2
 batch_size = 32
 epochs = 50
 
-dl = ASLDataset("Dataset/ASL_DATASET/asl_alphabet_train/asl_alphabet_train")
+dl = ASLDataset(train_paths, train_labels)
 train_loader = DataLoader(dl, batch_size = batch_size, shuffle = True)
 
 
