@@ -3,11 +3,18 @@ import torch
 import torchvision
 import pandas as pd
 import torch.nn as nn
+import numpy as np
 from tqdm import tqdm
 from dataset import ASLDataset
 from torchvision import transforms
 from torch.utils.data import DataLoader
 
+from utils import *
+
+paths, labels, label_map = load_paths("Dataset/ASL_DATASET/asl_alphabet_train/asl_alphabet_train")
+train_paths, train_labels, val_paths, val_labels = split_dataset(paths, labels, val_ratio = 0.2)
+print(len(paths), len(train_paths), len(val_paths))
+exit()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 embedding_dims = 2
