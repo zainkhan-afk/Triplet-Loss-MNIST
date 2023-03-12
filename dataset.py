@@ -7,11 +7,12 @@ import glob
 import cv2
 import os 
 
-class ASLDataset(Dataset):
-    def __init__(self, all_paths, all_labels, img_size = (28, 28)):
+class ASLDataset_Triplet_Loss(Dataset):
+    def __init__(self, all_paths, all_labels, num_labels, img_size = (28, 28)):
         self.img_size = img_size
         self.all_paths = all_paths
         self.all_labels = all_labels
+        self.num_labels = num_labels
 
         self.all_paths = np.array(self.all_paths)
         self.all_labels = np.array(self.all_labels)
@@ -48,11 +49,38 @@ class ASLDataset(Dataset):
         return anchor_img, positive_img, negative_img, torch.tensor([label])
 
 
-if __name__ == "__main__":
-    dl = ASLDataset("Dataset/ASL_DATASET/asl_alphabet_train/asl_alphabet_train")
-    train_data_generator = DataLoader(dl, batch_size = 32, shuffle = True)
-    train_data_iter = iter(train_data_generator)
+class ASLDataset_Classification(Dataset):
+    def __init__(self, all_paths, all_labels, num_labels, img_size = (28, 28)):
+        self.img_size = img_size
+        self.all_paths = all_paths
+        self.all_labels = all_labels
+        self.num_labels = num_labels
 
-    for anchor_imgs, positive_imgs, negative_imgs, actual_labels in train_data_iter:
-        print(anchor_imgs.min(), anchor_imgs.max())
-        exit()
+        self.all_paths = np.array(self.all_paths)
+        self.all_labels = np.array(self.all_labels)
+    
+    def _load_image(self, path):
+        img = cv2.imread(path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.resize(img, self.img_size)
+        img = img.astype("float32")/255.0
+        # img = img.transpose((2, 0, 1))
+        img = img[np.newaxis, :, :]
+        img = torch.from_numpy(img)
+
+        return img
+
+    def __len__(self):
+        return len(self.all_paths)
+    
+    def __getitem__(self, idx):
+        path = self.all_paths[idx]
+        label = self.all_labels[idx]
+
+        OHE_label = np.zeros(self.num_labels)
+        OHE_label[label] = 1
+    
+        img = self._load_image(path)
+
+
+        return img, torch.tensor(OHE_label)
